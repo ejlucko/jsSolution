@@ -1,0 +1,161 @@
+<html>
+<title>My JS Solution</title>
+<head>
+<meta charset="UTF-8">
+<style>
+.rover {
+	background-image: url('pixelrover.png');
+	background-repeat: no-repeat;
+
+}
+
+.roverDir-N {
+	background-position: top center;
+}
+.roverDir-S {
+	background-position: bottom center;
+}
+.roverDir-E {
+	background-position: right center;
+}
+.roverDir-W {
+	background-position: left center;
+}
+.start {
+	color: green;
+}
+.end {
+	color: red;
+}
+td {
+	border: 1px solid black;
+	padding: 30px;
+}
+
+form, {
+	padding: 30px 0 0 30px;
+}
+</style>
+<script   src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script>
+<script>
+
+var roverX=1;
+var roverY=3;
+function createTable(width, height) { 
+    var table ='<table>';
+    for(var y=0;y<height;y++) {
+        var rows = '<tr>';
+		for(var x=0;x<width;x++) {
+			var cols = '<td>';
+			cols+= (x + 1) + "," + (height - y) + "</td>";
+			rows += cols;
+		}
+        rows += '</tr>';
+        table += rows;
+    }
+    table += '</table>';
+	$('table').remove();
+    $('body').prepend(table);
+}
+function placeRover(rX, rY, rDir, cellClass) {
+	var gridHeight = $('table tr').length;
+	var gridWidth = $('table tr').first().children().length;
+	if ((rX >=0 && rX<gridWidth)&&(rY >=0 && rY<gridHeight)) {
+		$('table tr').eq(gridHeight-rY-1).children().eq(rX).addClass("rover").addClass("roverDir-"+rDir).addClass(cellClass);
+
+	} else {
+		console.log("I AM ERROR");
+	}
+}
+
+function processInput(event) {
+	event.preventDefault();
+	var roverInstructions = $('textarea[name=roverInput]').val();
+	var instructionArray = roverInstructions.split("\n");
+	var myGridSize = instructionArray[0].split(" ");
+	createTable(myGridSize[0],myGridSize[1]);
+	console.log(instructionArray);
+	var myRoverPosition = instructionArray[1].split(" ");
+	var rX = myRoverPosition[0]-1;
+	var rY = myRoverPosition[1]-1;
+	var rDir = myRoverPosition[2];
+
+	placeRover(rX,rY,rDir,"start");
+	var commandSequence = instructionArray[2];
+	for(var i=0; i<commandSequence.length; i++) {
+		var command = commandSequence[i];
+		if (command == "L") {
+			switch(rDir){
+				case "N":
+					rDir = "W";
+					break;
+				case "S":
+					rDir = "E";
+					break;
+				case "E":
+					rDir = "N";
+					break;
+				case "W":
+					rDir = "S";
+					break;
+			}
+		} else if (command == "R") {
+			switch(rDir) {	
+				case "N":
+					rDir = "E";
+					break;
+				case "S":
+					rDir = "W";
+					break;
+				case "E":
+					rDir = "S";
+					break;
+				case "W":
+					rDir = "N";
+					break;
+			}
+		} else if (command == "M") {
+			switch(rDir) {
+				case "N":
+					rY+=1;
+					break;
+				case "S":
+					rY-=1;
+					break;
+				case "E":
+					rX+=1;
+					break;
+				case "W":
+					rX-=1;
+					break;
+			}
+		}
+	}
+	placeRover(rX,rY,rDir,"end");
+	$('textarea[name=roverOutput]').val((rX+1) + " " + (rY+1) + " " + rDir);
+	return false;
+}
+/*$(document).ready(function() {
+	$('body').prepend(createTable(5,5));
+	placeRover(roverX,roverY);
+
+
+});*/
+
+</script>
+</head>
+<body>
+	<h1>Eric Lucko's solution</h1>
+<form onsubmit="return processInput(event);">
+	<p>Please enter the coordinates in the textarea below.</p>
+<textarea name="roverInput" rows="10" cols="30">5 5
+1 2 N
+LMLMLMLMM</textarea>
+<br /><br />
+<button>Submit</button>
+</form>
+<form>
+<textarea class="mytextarea" name="roverOutput" rows="10" cols ="30"></textarea>
+</form>
+</body>
+</html>
